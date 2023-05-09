@@ -4,24 +4,23 @@ pragma solidity ^0.8.0;
 
 contract lottery{
 
-    address payable  []  Applications;
-    string [] names;
+    address payable []  Applications;
+    string [] emails;
     address payable owner;
 
     mapping(string => address) public hasApplied;
 
     constructor () {
-
         owner = payable(msg.sender);
     }
 
-    function Apply(string memory _name)  payable public {
-        require(hasApplied[_name] == address(0), "b"); 
+    function Apply(string memory _email)  payable public {
+        require(hasApplied[_email] == address(0), "bYou have already applied"); 
         require(msg.value == 2 ether, "must pay 2 ether to enter");       
 
         Applications.push(payable(msg.sender));
-        names.push(_name);
-        hasApplied[_name] = msg.sender;
+        emails.push(_email);
+        hasApplied[_email] = msg.sender;
     }
 
     function random() private view returns(uint) {
