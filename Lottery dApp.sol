@@ -15,7 +15,7 @@ contract lottery{
         owner = payable(msg.sender);
     }
 
-    function Apply(string memory _name , address _addr)  payable public {
+    function Apply(string memory _name)  payable public {
         require(hasApplied[_name] == address(0), "b"); 
         require(msg.value == 2 ether, "must pay 2 ether to enter");       
 
@@ -25,7 +25,7 @@ contract lottery{
     }
 
     function random() private view returns(uint) {
-        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, Applications.length)));
+        return uint(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, Applications.length)));
     }
 
     function pickWinner () public  {
