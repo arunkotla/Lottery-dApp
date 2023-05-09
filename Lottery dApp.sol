@@ -8,7 +8,7 @@ contract lottery{
     string [] emails;
     address payable owner;
 
-    mapping(string => address) public hasApplied;
+    mapping(string => address) hasApplied;
 
     constructor () {
         owner = payable(msg.sender);
@@ -27,13 +27,15 @@ contract lottery{
         return uint(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, Applications.length)));
     }
 
-    function pickWinner () public  {
+    function pickWinner () public returns (string memory) {
 
         require(msg.sender ==owner, "only owner can call this function");
 
         uint index = random() % Applications.length;
         Applications[index].transfer(address(this).balance);
         Applications = new address payable[](0);
+
+        return emails[index];
     }
 
     function getApplications () public view returns (address payable[] memory ) {
