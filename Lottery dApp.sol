@@ -2,43 +2,50 @@
 
 pragma solidity ^0.8.0;
 
-contract lottery{
+contract Lottery {
+    address payable[] private applications;
+    string[] private emails;
+    address payable private owner;
 
-    address payable []  Applications;
-    string [] emails;
-    address payable owner;
+    mapping(string => address) private hasApplied;
 
-    mapping(string => address) hasApplied;
-
-    constructor () {
+    constructor() {
         owner = payable(msg.sender);
     }
 
-    function Apply(string memory _email)  payable public {
-        require(hasApplied[_email] == address(0), "bYou have already applied"); 
-        require(msg.value == 2 ether, "must pay 2 ether to enter");       
+    function apply(string memory _email) payable public {
+        require(hasApplied[_email] == address(0), "You have already applied");
+        require(msg.value == 2 ether, "Must pay 2 ether to enter");
 
-        Applications.push(payable(msg.sender));
+        applications.push(payable(msg.sender));
         emails.push(_email);
         hasApplied[_email] = msg.sender;
     }
 
-    function random() private view returns(uint) {
-        return uint(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, Applications.length)));
+    function random() private view returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), block.timestamp, applications.length)));
     }
 
-    function pickWinner () public returns (string memory) {
+    function pickWinner() public {
+        require(msg.sender == owner, "Only the owner can call this function");
+        require(applications.length > 0, "No applications available");
 
-        require(msg.sender ==owner, "only owner can call this function");
+        uint256 index = random() % applications.length;
+        address payable winner = applications[index];
 
-        uint index = random() % Applications.length;
-        Applications[index].transfer(address(this).balance);
-        Applications = new address payable[](0);
+        winner.transfer(address(this).balance);
 
-        return emails[index];
+        delete applications;
+        delete emails;
+
+        hasApplied[emails[index]] = address(0);
     }
 
-    function getApplications () public view returns (address payable[] memory ) {
-        return Applications;
+    function getApplications() public view returns (address payable[] memory) {
+        return applications;
+    }
+
+    function getEmails() public view returns (string[] memory) {
+        return emails;
     }
 }
